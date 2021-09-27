@@ -1,0 +1,15 @@
+
+
+# dependencies
+/node_modules
+
+# production
+/build
+
+# blockly media
+/public/media
+
+# misc
+.DS_Store
+.eslintcache
+
