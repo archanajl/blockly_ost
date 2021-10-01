@@ -1,35 +1,14 @@
-/**
- * @license
- *
- * Copyright 2019 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/**
- * @fileoverview Main React component that includes the Blockly component.
- * @author samelh@google.com (Sam El-Husseini)
- */
-
 import React from 'react';
 import './App.css';
+import Blockly from 'blockly'
 
-import BlocklyComponent, { Block, Value, Field, Shadow } from './Blockly';
+import BlocklyComponent, { Block, Value, Field, Shadow, Category } from './Blockly';
 
 import BlocklyJS from 'blockly/javascript';
 
 import './blocks/customblocks';
 import './generator/generator';
+
 
 class App extends React.Component {
   constructor(props) {
@@ -38,11 +17,22 @@ class App extends React.Component {
   }
  
   generateCode = () => {
+    
+      // Generate XML code and display it.
+      var xmlDom = Blockly.Xml.workspaceToDom(this.simpleWorkspace.current.workspace);
+      var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
+
     var code = BlocklyJS.workspaceToCode(
       this.simpleWorkspace.current.workspace
     );
-    document.getElementById("code").value = code
+    document.getElementById("code").value = xmlText
     console.log(code);
+    console.log(this.simpleWorkspace.current.workspace)
+    console.log(JSON.stringify(this.simpleWorkspace.current.workspace.options.languageTree, (key, val) => {
+      if (key === 'blockxml') return val.outerHTML;
+ 
+      return val;
+    }))
   }
 
   
@@ -71,24 +61,71 @@ class App extends React.Component {
             wheel: true
           }}
           className="blocky-block"
-          initialXml={`
-<xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox">
-</xml>
-      `}>
-            <Block type="test_react_field" />
-            <Block type="test_react_date_field" />
-
-            <Block type="Welcome" />
-            <Block type="controls_ifelse" />
-            <Block type="controls_repeat_ext">
-              <Value name="TIMES">
-                <Shadow type="math_number">
-                  <Field name="NUM">10</Field>
-                </Shadow>
-              </Value>
-            </Block>
-            <Block type="logic_operation" />
-            <Block type="logic_ternary" />
+          initialJson ={
+            {
+              "kind": "categoryToolbox",
+              "contents": [
+                {
+                  "kind": "category",
+                  "name": "Control",
+                  "contents": [
+                    {
+                      "kind": "block",
+                      "type": "controls_if"
+                    },
+                    {
+                      "kind": "block",
+                      "type": "controls_whileUntil"
+                    },
+                    {
+                      "kind": "block",
+                      "type": "controls_for"
+                    }
+                  ]
+                },
+                {
+                  "kind": "category",
+                  "name": "Logic",
+                  "contents": [
+                    {
+                      "kind": "block",
+                      "type": "logic_compare"
+                    },
+                    {
+                      "kind": "block",
+                      "type": "logic_operation"
+                    },
+                    {
+                      "kind": "block",
+                      "type": "logic_boolean"
+                    }
+                  ]
+                }
+              ]
+            }
+            
+          }
+          >
+            <Category name="Variables" custom="VARIABLE" />
+            <Category name="Fields">
+              <Block type="test_react_field" />
+              <Block type="test_react_date_field" />
+            </Category>
+            <Category name="Loops">
+              <Block type="controls_ifelse" />
+              <Block type="controls_repeat_ext">
+                <Value name="TIMES">
+                  <Shadow type="math_number">
+                    <Field name="NUM">10</Field>
+                  </Shadow>
+                </Value>
+              </Block>
+              <Block type="logic_operation" />
+              <Block type="logic_ternary" />
+            </Category>
+            <Category name="Custom">
+             <Block type="Welcome" />
+            </Category>
 
           </BlocklyComponent>
         </div>

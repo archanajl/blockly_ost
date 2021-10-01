@@ -41,7 +41,8 @@ class BlocklyComponent extends React.Component {
     }
 
     componentDidMount() {
-        const { initialXml, children, ...rest } = this.props;
+        const {initialJson, initialXml, children, ...rest } = this.props;
+        
         this.primaryWorkspace = Blockly.inject(
             this.blocklyDiv.current,
             {
@@ -50,11 +51,44 @@ class BlocklyComponent extends React.Component {
                 ...rest
             },
         );
-
-        if (initialXml) {
-            Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(initialXml), this.primaryWorkspace);
+        //trying to create the toolbox using json
+        if (initialJson) {
+            Blockly.defineBlocksWithJsonArray(initialJson);
         }
+        //this.primaryWorkspace.updateToolbox()
+        var ff= [
+            {
+                "colour": 15,
+                "inputsInline": true,
+                "tooltip": "Buffer audio frames, and make them accessible to the filterchain.",
+                "helpUrl": "https:\/\/ffmpeg.org\/ffmpeg-filters.html#abuffer",
+                "previousStatement": "SourceSink",
+                "nextStatement": "Audio",
+                "message0": "abuffer=channel_layout=%1",
+                "type": "abuffer",
+                "args0": [
+                    {
+                        "name": "channel_layout",
+                        "check": "String",
+                        "text": "",
+                        "type": "field_input"
+                    }
+                ]
+            }]  ;
+        
+            Blockly.defineBlocksWithJsonArray(ff);
+        
+        /*    var workspace = Blockly.inject('blocklyDiv',
+                {toolbox: document.getElementById('toolbox')});
+        workspace.updateToolbox() */
+        /*if (initialXml) {
+            Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(initialXml), this.primaryWorkspace);
+        }*/
+        
+       
     }
+
+    
 
     get workspace() {
         return this.primaryWorkspace;
@@ -65,12 +99,13 @@ class BlocklyComponent extends React.Component {
     }
       
     render() {
-        const { children } = this.props;
-
+        const { children,initialJson } = this.props;
+        console.log(children)
+        console.log(initialJson)
         return <React.Fragment>
             <div ref={this.blocklyDiv} id="blocklyDiv" />
             <xml xmlns="https://developers.google.com/blockly/xml" is="blockly" style={{ display: 'none' }} ref={this.toolbox}>
-                {children}
+            {children}
             </xml>
         </React.Fragment>;
     }
