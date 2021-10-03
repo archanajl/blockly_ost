@@ -61,7 +61,6 @@ class BlocklyComponent extends React.Component {
                 "colour": 15,
                 "inputsInline": true,
                 "tooltip": "Buffer audio frames, and make them accessible to the filterchain.",
-                "helpUrl": "https:\/\/ffmpeg.org\/ffmpeg-filters.html#abuffer",
                 "previousStatement": "SourceSink",
                 "nextStatement": "Audio",
                 "message0": "abuffer=channel_layout=%1",
@@ -87,8 +86,6 @@ class BlocklyComponent extends React.Component {
         
        
     }
-
-    
 
     get workspace() {
         return this.primaryWorkspace;

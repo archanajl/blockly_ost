@@ -72,7 +72,7 @@ Blockly.Blocks['test_react_date_field'] = {
     this.setStyle('loop_blocks');
   }
 };
-
+//By using javascript
 Blockly.Blocks['Welcome'] = {
   init: function() {
     this.appendDummyInput()
@@ -95,3 +95,22 @@ Blockly.Blocks['Welcome'] = {
   }
 };
 
+//By using json
+Blockly.Blocks['string_length'] = {
+  init: function() {
+    this.jsonInit({
+      "message0": 'length of %1',
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "VALUE",
+          "check": "String"
+        }
+      ],
+      "output": "Number",
+      "colour": 160,
+      "tooltip": "Returns number of letters in the provided text.",
+      "helpUrl": "http://www.w3schools.com/jsref/jsref_length_string.asp"
+    });
+  }
+};
