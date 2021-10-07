@@ -27,7 +27,7 @@ import './BlocklyComponent.css';
 import Blockly from 'blockly/core';
 import locale from 'blockly/msg/en';
 import 'blockly/blocks';
-import Theme from '../Themes'
+import Theme from '../themes'
 
 
 
@@ -48,6 +48,7 @@ class BlocklyComponent extends React.Component {
             {
                 toolbox: this.toolbox.current,
                 theme: Theme,
+                trashcan: true,
                 ...rest
             },
         );

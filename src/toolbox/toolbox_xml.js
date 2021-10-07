@@ -1,117 +1,6 @@
-import React from 'react';
-import './App.css';
-import Blockly from 'blockly'
 
-import BlocklyComponent, { Block, Value, Field, Shadow, Category } from './Blockly';
 
-import BlocklyJS from 'blockly/javascript';
-
-import './blocks/customblocks';
-import './generator/generator';
-
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.simpleWorkspace = React.createRef();
-  }
- 
-  
-  generateCode = () => {
-    
-      // Generate XML code and display it.
-      var xmlDom = Blockly.Xml.workspaceToDom(this.simpleWorkspace.current.workspace);
-      var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
-
-    var code = BlocklyJS.workspaceToCode(
-      this.simpleWorkspace.current.workspace
-    );
-    console.log(code)
-    try {
-      eval(code);
-    } catch (error) {
-      console.log(error);
-    }
-    document.getElementById("code").value = xmlText
-    console.log(code);
-    console.log(this.simpleWorkspace.current.workspace)
-    console.log(JSON.stringify(this.simpleWorkspace.current.workspace.options.languageTree, (key, val) => {
-      if (key === 'blockxml') return val.outerHTML;
- 
-      return val;
-    }))
-  }
-
-// Do not use the advanced playground here because it will create a circular
-// dependency with the @blockly/dev-tools package.
-
-  render() {
-    
-    return (
-      <div className="App"  >
-        <header className="App-header">
-        <textarea
-        id="code"
-        style={{ height: "100px", width: "800px" }}
-        readOnly
-      ></textarea>
-          <button onClick={this.generateCode}>Start</button>
-        </header>
-        <div >
-          <BlocklyComponent ref={this.simpleWorkspace}
-          readOnly={false} trashcan={true} media={'media/'}
-          move={{
-            scrollbars: true,
-            drag: true,
-            wheel: true
-          }}
-          className="blocky-block"
-          initialJson ={
-            {
-              "kind": "categoryToolbox",
-              "contents": [
-                {
-                  "kind": "category",
-                  "name": "Control",
-                  "contents": [
-                    {
-                      "kind": "block",
-                      "type": "controls_if"
-                    },
-                    {
-                      "kind": "block",
-                      "type": "controls_whileUntil"
-                    },
-                    {
-                      "kind": "block",
-                      "type": "controls_for"
-                    }
-                  ]
-                },
-                {
-                  "kind": "category",
-                  "name": "Logic",
-                  "contents": [
-                    {
-                      "kind": "block",
-                      "type": "logic_compare"
-                    },
-                    {
-                      "kind": "block",
-                      "type": "logic_operation"
-                    },
-                    {
-                      "kind": "block",
-                      "type": "logic_boolean"
-                    }
-                  ]
-                }
-              ]
-            }
-            
-          }
-          >
-
-<Category name="Logic" colour="#5b80a5">
+const toolbox_xml = `<Category name="Logic" colour="#5b80a5">
 <Block type="controls_if"></Block>
 <Block type="logic_compare">
   <field name="OP">EQ</field>
@@ -531,15 +420,7 @@ class App extends React.Component {
     <Category name="Text" categorystyle="variable_category" custom="VARIABLE_TYPED_TEXT"></Category>
     <Category name="Boolean" categorystyle="variable_category" custom="VARIABLE_TYPED_BOOLEAN"></Category>
   </Category>
-  <Category name="Functions" custom="PROCEDURE"></Category>
+  <Category name="Functions" custom="PROCEDURE"></Category>`
 
 
-    </BlocklyComponent>
-    </div>
-        
-    </div>
-    );
-  }
-}
-
-export default App;
+  export default toolbox_xml
