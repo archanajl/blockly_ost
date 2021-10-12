@@ -1,545 +1,130 @@
-import React from 'react';
+/*import React from 'react';
 import './App.css';
-import Blockly from 'blockly'
-
-import BlocklyComponent, { Block, Value, Field, Shadow, Category } from './Blockly';
-
-import BlocklyJS from 'blockly/javascript';
-
-import './blocks/customblocks';
-import './generator/generator';
-
+import DefaultWorkSpace from './workspace/defaultWorkspace'
 class App extends React.Component {
+  render() {
+    return <DefaultWorkSpace></DefaultWorkSpace>
+  }
+}
+export default App;*/
+
+
+import React, {Component} from 'react';
+import Blockly from 'blockly';
+import './App.css'
+import './blocks/blocks'
+import './generator/generator'
+import Theme from './themes'
+import {antheasia_pricing_xml} from './toolbox/antheasia_pricing_xml'
+
+const toolbox = `
+      <xml id="toolbox" style="display: none">      
+      </xml>`
+  const flyoutContents = antheasia_pricing_xml
+  /*`<xml id="toolbox" style="display: none"><category name="Variables" custom="VARIABLE"></category>
+  <category name="Functions" custom="PROCEDURE"></category>
+  </xml>`*/
+
+  var workspace = null
+
+class App extends Component {
   constructor(props) {
     super(props);
-    this.simpleWorkspace = React.createRef();
+    this.state ={
+      workspace: null
+    }
+
+
   }
- 
-  
+
   generateCode = () => {
     
-      // Generate XML code and display it.
-      var xmlDom = Blockly.Xml.workspaceToDom(this.simpleWorkspace.current.workspace);
-      var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
+    // Generate XML code and display it.
+    var xmlDom = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
+    var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
 
-    var code = BlocklyJS.workspaceToCode(
-      this.simpleWorkspace.current.workspace
-    );
-    console.log(code)
-    try {
-      eval(code);
-    } catch (error) {
-      console.log(error);
-    }
+    var code = Blockly.JavaScript.workspaceToCode(workspace);
     document.getElementById("code").value = xmlText
-    console.log(code);
-    console.log(this.simpleWorkspace.current.workspace)
-    console.log(JSON.stringify(this.simpleWorkspace.current.workspace.options.languageTree, (key, val) => {
+  
+    console.log(JSON.stringify(workspace.options.languageTree, (key, val) => {
       if (key === 'blockxml') return val.outerHTML;
- 
+
       return val;
     }))
-  }
+}
 
-// Do not use the advanced playground here because it will create a circular
-// dependency with the @blockly/dev-tools package.
-
-  render() {
-    
-    return (
-      <div className="App"  >
-        <header className="App-header">
-        <textarea
-        id="code"
-        style={{ height: "100px", width: "800px" }}
-        readOnly
-      ></textarea>
-          <button onClick={this.generateCode}>Start</button>
-        </header>
-        <div >
-          <BlocklyComponent ref={this.simpleWorkspace}
-          readOnly={false} trashcan={true} media={'media/'}
-          move={{
-            scrollbars: true,
-            drag: true,
-            wheel: true
-          }}
-          className="blocky-block"
-          initialJson ={
-            {
-              "kind": "categoryToolbox",
-              "contents": [
-                {
-                  "kind": "category",
-                  "name": "Control",
-                  "contents": [
-                    {
-                      "kind": "block",
-                      "type": "controls_if"
-                    },
-                    {
-                      "kind": "block",
-                      "type": "controls_whileUntil"
-                    },
-                    {
-                      "kind": "block",
-                      "type": "controls_for"
-                    }
-                  ]
-                },
-                {
-                  "kind": "category",
-                  "name": "Logic",
-                  "contents": [
-                    {
-                      "kind": "block",
-                      "type": "logic_compare"
-                    },
-                    {
-                      "kind": "block",
-                      "type": "logic_operation"
-                    },
-                    {
-                      "kind": "block",
-                      "type": "logic_boolean"
-                    }
-                  ]
-                }
-              ]
-            }
-            
+    componentDidMount() {
+      
+      var blocklyArea = document.getElementById('blocklyArea');
+      var blocklyDiv = document.getElementById('blocklyDiv');
+      workspace  = Blockly.inject(blocklyDiv,
+          {
+            toolbox: toolbox,
+            theme:Theme
           }
-          >
+          );
+      this.setState({workspace})
+      var onresize = function(e) {
+        // Compute the absolute coordinates and dimensions of blocklyArea.
+        var element = blocklyArea;
+        var x = 0;
+        var y = 0;
+        do {
+          x += element.offsetLeft;
+          y += element.offsetTop;
+          element = element.offsetParent;
+        } while (element);
+        // Position blocklyDiv over blocklyArea.
+        blocklyDiv.style.left = x + 'px';
+        blocklyDiv.style.top = y + 'px';
+        blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+        blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
+        Blockly.svgResize(workspace);
+      };
+      window.addEventListener('resize', onresize, false);
+      onresize();
+      Blockly.svgResize(workspace);
+      // To update the Toolbox dynamically
+       workspace.updateToolbox(flyoutContents)
+      var flyoutWorkspace = workspace.getFlyout().getWorkspace();
+      flyoutWorkspace.addChangeListener(this.myUpdateFunction);
+      workspace.addChangeListener(this.myUpdateFunction())
+    }
 
-<Category name="Logic" colour="#5b80a5">
-<Block type="controls_if"></Block>
-<Block type="logic_compare">
-  <field name="OP">EQ</field>
-</Block>
-<Block type="logic_operation">
-  <field name="OP">AND</field>
-</Block>
-<Block type="logic_negate"></Block>
-<Block type="logic_boolean">
-  <field name="BOOL">TRUE</field>
-</Block>
-<Block type="logic_null"></Block>
-<Block type="logic_ternary"></Block>
-</Category>
-<Category name="Loops" colour="#5ba55b">
-<Block type="controls_repeat_ext">
-  <value name="TIMES">
-    <shadow type="math_number">
-      <field name="NUM">10</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="controls_whileUntil">
-  <field name="MODE">WHILE</field>
-</Block>
-<Block type="controls_for">
-  <field name="VAR" id="for_var_id">i</field>
-  <value name="FROM">
-    <shadow type="math_number">
-      <field name="NUM">1</field>
-    </shadow>
-  </value>
-  <value name="TO">
-    <shadow type="math_number">
-      <field name="NUM">10</field>
-    </shadow>
-  </value>
-  <value name="BY">
-    <shadow type="math_number">
-      <field name="NUM">1</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="controls_forEach">
-  <field name="VAR" id="Srgeb)y!{cpln7^?pW_^">j</field>
-</Block>
-<Block type="controls_flow_statements">
-  <field name="FLOW">BREAK</field>
-</Block>
-</Category>
-<Category name="Math" colour="#5b67a5">
-<Block type="math_number">
-  <field name="NUM">0</field>
-</Block>
-<Block type="math_arithmetic">
-  <field name="OP">ADD</field>
-  <value name="A">
-    <shadow type="math_number">
-      <field name="NUM">1</field>
-    </shadow>
-  </value>
-  <value name="B">
-    <shadow type="math_number">
-      <field name="NUM">1</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="math_single">
-  <field name="OP">ROOT</field>
-  <value name="NUM">
-    <shadow type="math_number">
-      <field name="NUM">9</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="math_trig">
-  <field name="OP">SIN</field>
-  <value name="NUM">
-    <shadow type="math_number">
-      <field name="NUM">45</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="math_constant">
-  <field name="CONSTANT">PI</field>
-</Block>
-<Block type="math_number_property">
-  <mutation divisor_input="false"></mutation>
-  <field name="PROPERTY">EVEN</field>
-  <value name="NUMBER_TO_CHECK">
-    <shadow type="math_number">
-      <field name="NUM">0</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="math_round">
-  <field name="OP">ROUND</field>
-  <value name="NUM">
-    <shadow type="math_number">
-      <field name="NUM">3.1</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="math_on_list">
-  <mutation op="SUM"></mutation>
-  <field name="OP">SUM</field>
-</Block>
-<Block type="math_modulo">
-  <value name="DIVIDEND">
-    <shadow type="math_number">
-      <field name="NUM">64</field>
-    </shadow>
-  </value>
-  <value name="DIVISOR">
-    <shadow type="math_number">
-      <field name="NUM">10</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="math_constrain">
-  <value name="VALUE">
-    <shadow type="math_number">
-      <field name="NUM">50</field>
-    </shadow>
-  </value>
-  <value name="LOW">
-    <shadow type="math_number">
-      <field name="NUM">1</field>
-    </shadow>
-  </value>
-  <value name="HIGH">
-    <shadow type="math_number">
-      <field name="NUM">100</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="math_random_int">
-  <value name="FROM">
-    <shadow type="math_number">
-      <field name="NUM">1</field>
-    </shadow>
-  </value>
-  <value name="TO">
-    <shadow type="math_number">
-      <field name="NUM">100</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="math_random_float"></Block>
-</Category>
-<Category name="Text" colour="#5ba58c">
-<Block type="text">
-  <field name="TEXT"></field>
-</Block>
-<Block type="text_join">
-  <mutation items="2"></mutation>
-</Block>
-<Block type="text_append">
-  <field name="VAR" id="y.TD]w_E+}wwE^I~I~yM">item</field>
-  <value name="TEXT">
-    <shadow type="text">
-      <field name="TEXT"></field>
-    </shadow>
-  </value>
-</Block>
-<Block type="text_length">
-  <value name="VALUE">
-    <shadow type="text">
-      <field name="TEXT">abc</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="text_isEmpty">
-  <value name="VALUE">
-    <shadow type="text">
-      <field name="TEXT"></field>
-    </shadow>
-  </value>
-</Block>
-<Block type="text_indexOf">
-  <field name="END">FIRST</field>
-  <value name="VALUE">
-    <Block type="variables_get">
-      <field name="VAR" id="z1%].UZTH]{eZh+Cs4z2">text</field>
-    </Block>
-  </value>
-  <value name="FIND">
-    <shadow type="text">
-      <field name="TEXT">abc</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="text_charAt">
-  <mutation at="true"></mutation>
-  <field name="WHERE">FROM_START</field>
-  <value name="VALUE">
-    <Block type="variables_get">
-      <field name="VAR" id="z1%].UZTH]{eZh+Cs4z2">text</field>
-    </Block>
-  </value>
-</Block>
-<Block type="text_getSubstring">
-  <mutation at1="true" at2="true"></mutation>
-  <field name="WHERE1">FROM_START</field>
-  <field name="WHERE2">FROM_START</field>
-  <value name="STRING">
-    <Block type="variables_get">
-      <field name="VAR" id="z1%].UZTH]{eZh+Cs4z2">text</field>
-    </Block>
-  </value>
-</Block>
-<Block type="text_changeCase">
-  <field name="CASE">UPPERCASE</field>
-  <value name="TEXT">
-    <shadow type="text">
-      <field name="TEXT">abc</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="text_trim">
-  <field name="MODE">BOTH</field>
-  <value name="TEXT">
-    <shadow type="text">
-      <field name="TEXT">abc</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="text_print">
-  <value name="TEXT">
-    <shadow type="text">
-      <field name="TEXT">abc</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="text_prompt_ext">
-  <mutation type="TEXT"></mutation>
-  <field name="TYPE">TEXT</field>
-  <value name="TEXT">
-    <shadow type="text">
-      <field name="TEXT">abc</field>
-    </shadow>
-  </value>
-</Block>
-</Category>
-<Category name="Lists" colour="#745ba5">
-<Block type="lists_create_with">
-  <mutation items="0"></mutation>
-</Block>
-<Block type="lists_create_with">
-  <mutation items="3"></mutation>
-</Block>
-<Block type="lists_repeat">
-  <value name="NUM">
-    <shadow type="math_number">
-      <field name="NUM">5</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="lists_length"></Block>
-<Block type="lists_isEmpty"></Block>
-<Block type="lists_indexOf">
-  <field name="END">FIRST</field>
-  <value name="VALUE">
-    <Block type="variables_get">
-      <field name="VAR" id="=A?oaB;9;%jm%5ThDH,4">list</field>
-    </Block>
-  </value>
-</Block>
-<Block type="lists_getIndex">
-  <mutation statement="false" at="true"></mutation>
-  <field name="MODE">GET</field>
-  <field name="WHERE">FROM_START</field>
-  <value name="VALUE">
-    <Block type="variables_get">
-      <field name="VAR" id="=A?oaB;9;%jm%5ThDH,4">list</field>
-    </Block>
-  </value>
-</Block>
-<Block type="lists_setIndex">
-  <mutation at="true"></mutation>
-  <field name="MODE">SET</field>
-  <field name="WHERE">FROM_START</field>
-  <value name="LIST">
-    <Block type="variables_get">
-      <field name="VAR" id="=A?oaB;9;%jm%5ThDH,4">list</field>
-    </Block>
-  </value>
-</Block>
-<Block type="lists_getSublist">
-  <mutation at1="true" at2="true"></mutation>
-  <field name="WHERE1">FROM_START</field>
-  <field name="WHERE2">FROM_START</field>
-  <value name="LIST">
-    <Block type="variables_get">
-      <field name="VAR" id="=A?oaB;9;%jm%5ThDH,4">list</field>
-    </Block>
-  </value>
-</Block>
-<Block type="lists_split">
-  <mutation mode="SPLIT"></mutation>
-  <field name="MODE">SPLIT</field>
-  <value name="DELIM">
-    <shadow type="text">
-      <field name="TEXT">,</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="lists_sort">
-  <field name="TYPE">NUMERIC</field>
-  <field name="DIRECTION">1</field>
-</Block>
-</Category>
-<Category name="Colour" colour="#a5745b">
-<Block type="colour_picker">
-  <field name="COLOUR">#ff0000</field>
-</Block>
-<Block type="colour_random"></Block>
-<Block type="colour_rgb">
-  <value name="RED">
-    <shadow type="math_number">
-      <field name="NUM">100</field>
-    </shadow>
-  </value>
-  <value name="GREEN">
-    <shadow type="math_number">
-      <field name="NUM">50</field>
-    </shadow>
-  </value>
-  <value name="BLUE">
-    <shadow type="math_number">
-      <field name="NUM">0</field>
-    </shadow>
-  </value>
-</Block>
-<Block type="colour_blend">
-  <value name="COLOUR1">
-    <shadow type="colour_picker">
-      <field name="COLOUR">#ff0000</field>
-    </shadow>
-  </value>
-  <value name="COLOUR2">
-    <shadow type="colour_picker">
-      <field name="COLOUR">#3333ff</field>
-    </shadow>
-  </value>
-  <value name="RATIO">
-    <shadow type="math_number">
-      <field name="NUM">0.5</field>
-    </shadow>
-  </value>
-</Block>
-</Category>
-<sep></sep>
-<Category name="Variables" colour="#a55b80" custom="VARIABLE"></Category>
-<Category name="Functions" colour="#995ba5" custom="PROCEDURE"></Category>
-<sep></sep>
-  <Category name="Tools" categorystyle="tools_category">
-      <Block type="controls_if" blockStyles="logic_blocks"></Block>
-      <Block type="controls_repeat_ext" blockStyle="logic_blocks"></Block>
-      <Block type="logic_compare" ></Block>
-      <sep gap="64"></sep>
-      <label text="Math" web-class="myLabelStyle"></label>
-      <Block type="math_number" ></Block>
-      <Block type="math_arithmetic" ></Block>
-      <sep gap="64"></sep>
-      <Block type="text" ></Block>
-      <Block type="text_print" ></Block>
-      <sep gap="64"></sep>
-      <Block type="colour_picker" ></Block>
-  </Category>
-  <Category name="Text" categorystyle="text_category">
-      <Block type="string_length" ></Block>
-  </Category>
-  <Category name="Math" categorystyle="math_category">
-      <Block type="math_change" ></Block>
-  
-      <Block type="logic_boolean"></Block>
+    myUpdateFunction =( event) => {
+      console.log('inside')
+      var xmlDom = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
+    var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
 
-      <Block type="math_number">
-        <field name="NUM">42</field>
-      </Block>
+    var code = Blockly.JavaScript.workspaceToCode(workspace);
+    document.getElementById("code").value = xmlText
 
-      <Block type="controls_for">
-        <value name="FROM">
-        <Block type="math_number">
-          <field name="NUM">1</field>
-        </Block>
-        </value>
-      <value name="TO">
-      <Block type="math_number">
-        <field name="NUM">10</field>
-      </Block>
-    </value>
-    <value name="BY">
-      <Block type="math_number">
-        <field name="NUM">1</field>
-      </Block>
-    </value>
-  </Block>
+    }
 
-  <Block type="math_arithmetic">
-    <field name="OP">ADD</field>
-    <value name="A">
-      <shadow type="math_number">
-        <field name="NUM">1</field>
-      </shadow>
-    </value>
-    <value name="B">
-      <shadow type="math_number">
-        <field name="NUM">1</field>
-      </shadow>
-    </value>
-  </Block>
-</Category>
-  <Category name="Variables" >
-    <Category name="Int" categorystyle="variable_category" custom="VARIABLE_TYPED_NUM"></Category>
-    <Category name="Text" categorystyle="variable_category" custom="VARIABLE_TYPED_TEXT"></Category>
-    <Category name="Boolean" categorystyle="variable_category" custom="VARIABLE_TYPED_BOOLEAN"></Category>
-  </Category>
-  <Category name="Functions" custom="PROCEDURE"></Category>
+    render = () => {
+        return (
+            <div className="App">
+              <div className="row">
+                <div className="column">
+                  <div className="App-header">
+                    <textarea id="code" style={{ height: "100px", width: "800px" }} readOnly></textarea>
+                    <button onClick={this.generateCode}>Start</button>
+                  </div>
+                </div>
+                <div className="column">
+                  <div className="app-body">
+                    <div id="blocklyContainer" style={{"position": "absolute" }}>
+                        <div id="blocklyArea">                
+                        </div>
 
-
-    </BlocklyComponent>
-    </div>
-        
-    </div>
-    );
-  }
+                    </div>
+                    <div id="blocklyDiv" style={{"position": "absolute"}}></div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        );
+    }
 }
 
 export default App;

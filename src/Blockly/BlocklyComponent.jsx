@@ -97,9 +97,10 @@ class BlocklyComponent extends React.Component {
     }
       
     render() {
-        const { children,initialJson } = this.props;
+        const { children,initialJson,initialXml } = this.props;
         console.log(children)
         console.log(initialJson)
+        console.log(Blockly.Xml.textToDom(initialXml))
         return <React.Fragment>
             <div ref={this.blocklyDiv} id="blocklyDiv" />
             <xml xmlns="https://developers.google.com/blockly/xml" is="blockly" style={{ display: 'none' }} ref={this.toolbox}>
